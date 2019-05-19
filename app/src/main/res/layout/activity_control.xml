@@ -54,7 +54,7 @@
         android:id="@+id/buttonTakeOff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/rightButton"
+        android:layout_alignBottom="@+id/buttonRight"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="25dp"
         android:text="Take Off" />
@@ -66,4 +66,30 @@
         android:layout_alignEnd="@+id/buttonTakeOff"
         android:layout_alignBottom="@+id/buttonBackward"
         android:text="Land" />
+
+    <Button
+        android:id="@+id/buttonRecordLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/buttonTakeOff"
+        android:layout_alignBottom="@+id/buttonForward"
+        android:layout_marginStart="-61dp"
+        android:layout_marginBottom="-177dp"
+        android:text="Record Location" />
+
+    <Button
+        android:id="@+id/buttonConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonTakeOff"
+        android:layout_alignStart="@+id/buttonTakeOff"
+        android:text="Connect" />
+
+    <Button
+        android:id="@+id/buttonFlyingRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonConnect"
+        android:layout_alignEnd="@+id/buttonConnect"
+        android:text="Flying Record" />
 </RelativeLayout>

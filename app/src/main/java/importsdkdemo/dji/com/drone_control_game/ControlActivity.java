@@ -3,6 +3,8 @@ package importsdkdemo.dji.com.drone_control_game;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,17 +19,22 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.FlightControllerState;
 import dji.common.flightcontroller.virtualstick.FlightControlData;
 import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
+import dji.common.model.LocationCoordinate2D;
+import dji.common.remotecontroller.GPSData;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.FlightControllerKey;
 import dji.sdk.base.BaseComponent;
@@ -64,6 +71,7 @@ public class ControlActivity extends AppCompatActivity {
     private AtomicBoolean isRegistrationInProgress = new AtomicBoolean(false);
     private static final int REQUEST_PERMISSION_CODE = 12345;
     private FlightController mFlightController;
+    private FlightControllerState mFlightControllerSate;
     //private FlightControlData mFlightControlData;
 
     private void initFlightController() {
@@ -79,8 +87,10 @@ public class ControlActivity extends AppCompatActivity {
             mFlightController.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
             mFlightController.setVerticalControlMode(VerticalControlMode.VELOCITY);
             mFlightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+            showToast("Product Connected");
         }
     }
+
 
     @Override
     public void onResume() {
@@ -109,6 +119,9 @@ public class ControlActivity extends AppCompatActivity {
         initBackwardButton();
         initRightButton();
         initLeftButton();
+        initRecordLocationButton();
+        initButtonConnect();
+        initButtonFlyingRecord();
 
     }
 
@@ -187,7 +200,7 @@ public class ControlActivity extends AppCompatActivity {
                         @Override
                         public void onProductConnect(BaseProduct baseProduct) {
                             Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
-                            showToast("Product Connected");
+                            //showToast("Product Connected");
                             notifyStatusChange();
 
                         }
@@ -402,6 +415,54 @@ public class ControlActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    private void initRecordLocationButton() {
+        Button buttonRecordLocation = (Button) findViewById(R.id.buttonRecordLocation);
+        buttonRecordLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //mFlightControllerSate.getAircraftLocation().getAltitude();
+                DroneDataSource ds = new DroneDataSource(ControlActivity.this);
+                Calendar flyingDate = Calendar.getInstance();
+                mFlightControllerSate = mFlightController.getState();
+                //List<Address> addresses = null;
+                //Geocoder geocoder = new Geocoder(ControlActivity.this);
+                ds.open();
+                Drone d = new Drone();
+                d.setFlyingDate(flyingDate);
+                //Log.e("day", flyingDate.get(Calendar.d))
+                d.setLatitude(mFlightControllerSate.getAircraftLocation().getLatitude());
+                d.setLongitude(mFlightControllerSate.getAircraftLocation().getLongitude());
+                ds.insertFlightData(d);
+                ds.close();
+                //Toast.makeText(ControlActivity.this, "Latitude: " + String.valueOf(d.getLatitude()) + "Longitude: "
+                //+ String.valueOf(d.getLongitude()), Toast.LENGTH_LONG).show();
+                //Toast.makeText(ControlActivity.this, addresses.get(0).getAddressLine(0), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void initButtonConnect() {
+        Button buttonConnect = (Button) findViewById(R.id.buttonConnect);
+        buttonConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initFlightController();
+            }
+        });
+    }
+
+    private void initButtonFlyingRecord() {
+        Button buttonFlyingRecord = (Button) findViewById(R.id.buttonFlyingRecord);
+        buttonFlyingRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ControlActivity.this, LocationListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
     }
